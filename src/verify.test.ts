@@ -105,19 +105,30 @@ describe("Clerk path — allowlist authorization", () => {
     expect((info!.extra as { userId: string }).userId).toBe("user_def");
   });
 
-  it("also resolves the allowlist from the whoop var CLERK_ALLOWED_USER_IDS", async () => {
+  it("does NOT honor CLERK_ALLOWED_USER_IDS by default (audit: no union widening)", async () => {
     process.env.CLERK_ALLOWED_USER_IDS = "user_whoop";
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const verify = makeVerifyToken({ clerk: clerkFor("user_whoop") });
+    // default reads only ALLOWED_CLERK_USER_IDS (unset) → empty allowlist → reject
+    expect(await verify(req(), "oauth-token")).toBeUndefined();
+    warn.mockRestore();
+  });
+
+  it("whoop reads CLERK_ALLOWED_USER_IDS via explicit allowlistEnvVars override", async () => {
+    process.env.CLERK_ALLOWED_USER_IDS = "user_whoop";
+    const verify = makeVerifyToken({
+      allowlistEnvVars: ["CLERK_ALLOWED_USER_IDS"],
+      clerk: clerkFor("user_whoop"),
+    });
     expect(await verify(req(), "oauth-token")).toBeDefined();
   });
 
-  it("unions ids across BOTH env var names", async () => {
+  it("unions ids only when BOTH names are explicitly configured", async () => {
     process.env.ALLOWED_CLERK_USER_IDS = "a";
     process.env.CLERK_ALLOWED_USER_IDS = "b";
-    const verify = makeVerifyToken({ clerk: clerkFor("b") });
-    expect(await verify(req(), "oauth-token")).toBeDefined();
-    const verify2 = makeVerifyToken({ clerk: clerkFor("a") });
-    expect(await verify2(req(), "oauth-token")).toBeDefined();
+    const cfg = { allowlistEnvVars: ["ALLOWED_CLERK_USER_IDS", "CLERK_ALLOWED_USER_IDS"] };
+    expect(await makeVerifyToken({ ...cfg, clerk: clerkFor("b") })(req(), "oauth-token")).toBeDefined();
+    expect(await makeVerifyToken({ ...cfg, clerk: clerkFor("a") })(req(), "oauth-token")).toBeDefined();
   });
 
   it("fails CLOSED — empty allowlist rejects an otherwise-valid Clerk token", async () => {
@@ -179,11 +190,8 @@ describe("catchClerkErrors", () => {
 });
 
 describe("readAllowlist", () => {
-  it("defaults cover both known env var names", () => {
-    expect([...DEFAULT_ALLOWLIST_ENV_VARS]).toEqual([
-      "ALLOWED_CLERK_USER_IDS",
-      "CLERK_ALLOWED_USER_IDS",
-    ]);
+  it("default is the single ALLOWED_CLERK_USER_IDS var (no union widening)", () => {
+    expect([...DEFAULT_ALLOWLIST_ENV_VARS]).toEqual(["ALLOWED_CLERK_USER_IDS"]);
   });
 
   it("trims, drops blanks, and returns an empty set when unset", () => {

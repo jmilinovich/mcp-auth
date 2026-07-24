@@ -16,10 +16,12 @@
 //
 // Never log tokens or Authorization headers.
 import { createHash, timingSafeEqual } from "node:crypto";
-export const DEFAULT_ALLOWLIST_ENV_VARS = [
-    "ALLOWED_CLERK_USER_IDS",
-    "CLERK_ALLOWED_USER_IDS",
-];
+// Default = the single var the health-mcp/bodyspec/hevy/nutri/withings family
+// historically used. Reading multiple names UNIONS their ids, which would be
+// MORE permissive than any origin server (2026-07-24 audit finding), so the
+// default is one name and a server that used a different name passes it
+// explicitly via allowlistEnvVars (whoop: ["CLERK_ALLOWED_USER_IDS"]).
+export const DEFAULT_ALLOWLIST_ENV_VARS = ["ALLOWED_CLERK_USER_IDS"];
 const sha256 = (value) => createHash("sha256").update(value).digest();
 /** Constant-time equality over sha256 digests (always 32 bytes each). */
 function secretsMatch(a, b) {

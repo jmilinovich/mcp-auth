@@ -47,7 +47,7 @@ export interface MakeVerifyTokenConfig {
      */
     resourceMetadataPath?: string;
 }
-export declare const DEFAULT_ALLOWLIST_ENV_VARS: readonly ["ALLOWED_CLERK_USER_IDS", "CLERK_ALLOWED_USER_IDS"];
+export declare const DEFAULT_ALLOWLIST_ENV_VARS: readonly ["ALLOWED_CLERK_USER_IDS"];
 /** A withMcpAuth-compatible `verifyToken(request, bearerToken)`. */
 export type VerifyToken = (request: Request, bearerToken?: string) => Promise<AuthInfo | undefined>;
 /**
