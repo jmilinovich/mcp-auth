@@ -1,0 +1,66 @@
+{
+  "name": "@mili/mcp-auth",
+  "version": "0.1.0",
+  "description": "Shared MCP auth shell — Clerk OAuth + static bearer dual-path verifyToken, RFC 9728 well-known handlers, clerkMiddleware, and ToolResult run/runText helpers. Extracted from 6 copy-pasted health/fitness MCP servers.",
+  "type": "module",
+  "license": "MIT",
+  "author": "John Milinovich",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jmilinovich/mcp-auth.git"
+  },
+  "homepage": "https://github.com/jmilinovich/mcp-auth#readme",
+  "bugs": {
+    "url": "https://github.com/jmilinovich/mcp-auth/issues"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "clerk",
+    "oauth",
+    "auth",
+    "mcp-handler",
+    "rfc9728"
+  ],
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./middleware": {
+      "types": "./dist/middleware.d.ts",
+      "import": "./dist/middleware.js"
+    },
+    "./well-known": {
+      "types": "./dist/well-known.d.ts",
+      "import": "./dist/well-known.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "@clerk/mcp-tools": ">=0.6.0",
+    "@clerk/nextjs": ">=7.5.0",
+    "@modelcontextprotocol/sdk": ">=1.26.0",
+    "mcp-handler": ">=1.1.0"
+  },
+  "devDependencies": {
+    "@clerk/mcp-tools": "^0.6.0",
+    "@clerk/nextjs": "^7.5.9",
+    "@modelcontextprotocol/sdk": "1.26.0",
+    "@types/node": "^22.0.0",
+    "mcp-handler": "^1.1.0",
+    "next": "^15.5.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.0.0"
+  }
+}
