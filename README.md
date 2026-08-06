@@ -56,7 +56,7 @@ Verification order (unchanged from the originals):
 
 ```ts
 makeVerifyToken({
-  allowlistEnvVars,   // default ['ALLOWED_CLERK_USER_IDS','CLERK_ALLOWED_USER_IDS']
+  allowlistEnvVars,   // default ['ALLOWED_CLERK_USER_IDS']
   bearerSecretEnvVar, // default 'MCP_BEARER_SECRET'
   bearerClientId,     // default 'bearer-fallback'
   bearerScopes,       // default ['profile']
@@ -66,11 +66,13 @@ makeVerifyToken({
 });
 ```
 
-The allowlist reads **every** listed env var that is set and unions the ids, so
-`whoop-data-platform` (which uses `CLERK_ALLOWED_USER_IDS`) and the other five
-(which use `ALLOWED_CLERK_USER_IDS`) both work with the default — no per-server
-override needed. An unset/empty allowlist **denies every Clerk-authenticated
-request** (the static bearer still works).
+The allowlist reads **every configured** env var that is set and unions the ids.
+The default is deliberately the single `ALLOWED_CLERK_USER_IDS` name, because
+adding `CLERK_ALLOWED_USER_IDS` by default would widen authorization relative to
+five of the six origin servers. `whoop-data-platform` should pass
+`allowlistEnvVars: ['CLERK_ALLOWED_USER_IDS']` explicitly. An unset/empty
+allowlist **denies every Clerk-authenticated request** (the static bearer still
+works).
 
 **whoop-data-platform parity** — it returns a different bearer AuthInfo and
 catches Clerk errors:
